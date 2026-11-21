@@ -2,7 +2,7 @@
 
 Which doctors and clinics billing Medicare will be excluded for fraud in the next two years? This project ranks about 1.2 million US providers from their public billing records and checks the ranking against the federal exclusion list.
 
-On 2022 providers the model never saw, a provider later excluded for fraud is ranked above a provider who was not {{auc}} of the time (ROC AUC, 95% CI {{auc_ci}}), at a base rate of about 1 in 15,000. An investigation team reviewing the top 5% of providers would find {{hits5}} of the {{test_positives}} providers that the Office of Inspector General excluded for fraud in 2023 and 2024 ({{recall5}}, 95% CI {{recall5_ci}}). That is {{lift5}} times as many as a random list of the same size. Medicare paid those {{hits5}} providers {{value5}} in 2022, against {{value5_random}} expected from a random list.
+On 2022 providers the model never saw, a provider later excluded for fraud is ranked above a provider who was not in {{auc_pct}} of pairs (ROC AUC {{auc}}, 95% CI {{auc_ci}}), at a base rate of about 1 in 15,000. An investigation team reviewing the top 5% of providers would find {{hits5}} of the {{test_positives}} providers that the Office of Inspector General excluded for fraud in 2023 and 2024 ({{recall5}}, 95% CI {{recall5_ci}}). That is {{lift5}} times as many as a random list of the same size. Medicare paid those {{hits5}} providers {{value5}} in 2022, against {{value5_random}} expected from a random list.
 
 ## The problem
 
@@ -71,13 +71,13 @@ Chosen detector ({{chosen}}) on the test year, with 95% bootstrap intervals from
 
 Among the providers found in the top 5%, the most common specialties were {{hit_specialties}}. They were on the list a median of {{lead_median}} months before their exclusion (range {{lead_min}} to {{lead_max}} months), counted from the end of 2022. Logistic regression does about as well as LightGBM on the longer lists, so most of the signal is simple enough for a linear model.
 
-What the model relies on is worth stating plainly. For {{reason_specialty}} of the top {{budget}} providers, the largest single contribution to the score is the specialty, and the next most important inputs are the patient mix (the shares of patients on Medicaid or receiving the low-income drug subsidy) and the mark-up of charges over the allowed amount. The peer rule ranks worse than chance (ROC AUC {{auc_peer}}). Providers later excluded for fraud do not stand out as extreme billers in yearly totals. Many exclusions follow convictions for kickbacks or schemes that never show up in these aggregates. Organisations make up {{org_pop}} of providers and {{org_list}} of the top-{{budget}} list. Rural providers make up {{rural_pop}} of providers and {{rural_list}} of the list.
+What the model relies on is worth stating plainly. For {{reason_specialty}} of the top {{budget}} providers, the largest single contribution to the score is the specialty, and the next most important inputs are the patient mix (the shares of patients on Medicaid or receiving the low-income drug subsidy) and the mark-up of charges over the allowed amount. The peer rule is weak on the real exclusions (ROC AUC {{auc_peer}}). Providers later excluded for fraud mostly do not stand out as extreme billers in yearly totals. Most of these exclusions follow criminal convictions, often for kickbacks or schemes that may not show up in yearly totals at all. Organisations make up {{org_pop}} of providers and {{org_list}} of the top-{{budget}} list. Rural providers make up {{rural_pop}} of providers and {{rural_list}} of the list.
 
 ![Feature importance](figures/importance.png)
 
 ## Synthetic stress test
 
-The labels only cover fraud that was caught, prosecuted and ended in an exclusion. To see whether the detectors would notice schemes that are common but rarely prosecuted, {{stress_n}} real 2022 providers who were never excluded are copied, one scheme is applied to the copy's billing, and the copy is scored against the clean 2022 population. A copy counts as detected if it would make the top-{{budget}} list. The copies are never used for training or for the results above.
+The labels only cover fraud that was caught, prosecuted and ended in an exclusion. To see whether the detectors would notice schemes that are common but rarely prosecuted, {{stress_n}} real 2022 providers who were never excluded are copied, one scheme is applied to the copy's billing, and the copy is scored against the clean 2022 population. A copy counts as detected if it would make the top 1% list ({{stress_list}} providers). The copies are never used for training or for the results above.
 
 | Scheme | What changes |
 |---|---|
@@ -92,6 +92,12 @@ The labels only cover fraud that was caught, prosecuted and ended in an exclusio
 
 {{stress_summary}}
 
+## A bug the stress test found
+
+The first full run had a bug in the peer z-scores. DuckDB's `least()` and `greatest()` skip NULLs, so clipping a missing value to [-50, 50] returned 50. Every provider without Part D data, about a third of them, looked like an extreme outlier on every prescription metric. The model still ranked reasonably (ROC AUC {{first_auc}} on 2022, {{first_hits5}} later-excluded providers in the top 5%), because a constant 50 works like a missing-value flag. The peer rule was badly hurt (ROC AUC {{first_peer_auc}}). The stress test exposed the bug: unchanged copies of real providers were flagged far above the background rate.
+
+Missing values now stay missing, peer groups with an IQR of zero use the standard deviation, and two tests cover both cases. The models were refitted and chosen again on 2019 with the same rule, and 2022 was scored a second time. Both test runs are in `results/` (`first_run_test.json` and `test.json`), and every number above comes from the second.
+
 ## Scoring service
 
 ```bash
@@ -99,7 +105,7 @@ make serve
 curl -s localhost:8000/score -H 'Content-Type: application/json' -d @tests/example_provider.json
 ```
 
-The service takes one provider's yearly Part B totals (and Part D totals if there are any), builds the features with the same SQL as the pipeline, and returns the score, its percentile among 2022 providers, whether it would be on the top-{{budget}} list, the three inputs that raised the score most in plain language, and the five most similar providers that were later excluded, with their specialty and exclusion type. On its own, similarity to known cases ranks poorly (ROC AUC {{auc_knn}} on the test year), so it is shown to the reviewer as context and is not part of the score.
+The service takes one provider's yearly Part B totals (and Part D totals if there are any), builds the features with the same SQL as the pipeline, and returns the score, its percentile among 2022 providers, whether it would be on the top-{{budget}} list, the three inputs that raised the score most in plain language, and the five most similar providers that were later excluded, with their specialty and exclusion type. On its own, similarity to known cases ranks weakly (ROC AUC {{auc_knn}} on the test year), so it is shown to the reviewer as context and is not part of the score.
 
 ## Limitations
 

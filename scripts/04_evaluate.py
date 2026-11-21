@@ -29,11 +29,13 @@ def main() -> None:
     raw = scorer.detector_scores(test)
 
     # Reference distributions from this year, used later to turn a score into a percentile.
-    ref = {k.replace(" ", "_"): np.sort(v) for k, v in raw.items()}
+    # 20,001 quantiles resolve a percentile to 0.005% and keep the file small.
+    grid = np.linspace(0, 1, 20001)
+    ref = {k.replace(" ", "_"): np.quantile(v, grid) for k, v in raw.items()}
     np.savez_compressed(config.MODELS / "reference.npz", **ref)
     scorer = Scorer()
     scores = scorer.all_scores(test)
-    ref["chosen"] = np.sort(scores[scorer.chosen])
+    ref["chosen"] = np.quantile(scores[scorer.chosen], grid)
     np.savez_compressed(config.MODELS / "reference.npz", **ref)
     budgets = config.REVIEW_BUDGETS + tuple(round(f * len(test)) for f in config.REVIEW_SHARES)
     k = config.HEADLINE_BUDGET

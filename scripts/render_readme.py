@@ -62,8 +62,10 @@ def context() -> dict:
         "random_hits": f"{b['expected_hits_random']:.2f}",
         "share_reviewed": pct(h["share_reviewed"], 2),
         "auc": f"{det['roc_auc']:.3f}",
+        "auc_pct": pct(det["roc_auc"], 0),
+        "base_ap": f"{det['base_rate']:.5f}",
         "auc_ci": f"{det['roc_auc_ci'][0]:.3f}–{det['roc_auc_ci'][1]:.3f}",
-        "ap": f"{det['average_precision']:.3f}",
+        "ap": f"{det['average_precision']:.4f}",
         "ap_ci": f"{det['average_precision_ci'][0]:.3f}–{det['average_precision_ci'][1]:.3f}",
         "value_found": money_m(b["value_found"]),
         "value_random": money_m(b["value_found_random"]),
@@ -105,27 +107,35 @@ def context() -> dict:
     def det_rate(scheme, f, d, lst="top 1%"):
         return r[scheme][f][lst][d]["detected"]
 
+    lgb, peer, iso, combo = "lightgbm", "peer rule", "isolation forest", "lightgbm + peer rule"
+    c["stress_list"] = num(st["lists"]["top 1%"])
+    c["stress_background"] = pct(det_rate("phantom services", "1.0", lgb), 1)
     c["stress_summary"] = (
-        f"At five times normal billing, LightGBM puts {pct(det_rate('phantom services', '5.0', 'lightgbm'), 0)} "
-        f"of the phantom-service copies and {pct(det_rate('upcoding', '5.0', 'lightgbm'), 0)} of the upcoding "
-        f"copies on the list, while the peer rule catches {pct(det_rate('phantom services', '5.0', 'peer rule'), 0)} "
-        f"and {pct(det_rate('upcoding', '5.0', 'peer rule'), 0)}. A model trained only on who was caught learns "
-        f"what past cases looked like, and it can miss a blatant scheme that a simple peer comparison flags at "
-        f"once. In practice the two should run as separate channels feeding one review queue. Averaging "
-        f"their ranks into a single score is not enough, because that gives up most of the peer rule's "
-        f"sensitivity and some of the model's ranking (ROC AUC {test['detectors']['lightgbm + peer rule']['roc_auc']:.2f} "
-        f"on the test year). Neither detector notices a patient mill, which keeps every ratio normal "
-        f"({pct(det_rate('patient mill', '5.0', 'lightgbm'), 0)} and "
-        f"{pct(det_rate('patient mill', '5.0', 'peer rule'), 0)} at five times the volume). Catching that "
-        f"needs data these files do not have, such as patients' travel distance or shared patients between "
-        f"providers.")
+        f"Unchanged copies land on the list {pct(det_rate('phantom services', '1.0', lgb), 1)} of the time, "
+        f"which is the background rate for a top-1% list. At five times normal billing, LightGBM puts "
+        f"{pct(det_rate('phantom services', '5.0', lgb), 0)} of the phantom-service copies and "
+        f"{pct(det_rate('upcoding', '5.0', lgb), 0)} of the upcoding copies on the list. The combined "
+        f"LightGBM and peer rule score catches {pct(det_rate('phantom services', '5.0', combo), 0)} and "
+        f"{pct(det_rate('upcoding', '5.0', combo), 0)}. A model trained only on who was caught learns what "
+        f"past cases looked like, and it barely reacts to a blatant scheme that a peer comparison picks up. "
+        f"The combined score is better at the synthetic schemes and worse at the real exclusions "
+        f"(ROC AUC {test['detectors'][combo]['roc_auc']:.2f} against {test['detectors'][lgb]['roc_auc']:.2f}), "
+        f"so the two are best run as separate channels feeding one review queue. No detector notices a "
+        f"patient mill, which keeps every ratio normal "
+        f"({pct(det_rate('patient mill', '5.0', lgb), 0)} for LightGBM at five times the volume). Catching "
+        f"that needs data these files do not have, such as how far patients travel or which providers "
+        f"share patients.")
+    first = load("first_run_test.json")["detectors"]["lightgbm"]
+    c["first_auc"] = f"{first['roc_auc']:.2f}"
+    c["first_hits5"] = str(first["budgets"][k5]["hits"])
+    c["first_peer_auc"] = f"{load('first_run_test.json')['detectors']['peer rule']['roc_auc']:.2f}"
     rows = []
     for name in ORDER:
         r = test["detectors"][name]
         bb = r["budgets"][k]
         rows.append([("**" + name + "**") if name == chosen else name,
-                     f"{r['roc_auc']:.3f}", f"{r['average_precision']:.3f}",
-                     f"{bb['hits']} of {r['positives']}", pct(bb["precision"]),
+                     f"{r['roc_auc']:.3f}", f"{r['average_precision']:.4f}",
+                     f"{bb['hits']} of {r['positives']}", pct(bb["precision"], 2),
                      f"{bb['lift']:,.0f}×", money_m(bb["value_found"])])
     c["detector_table"] = table(["detector", "ROC AUC", "average precision",
                                  f"found in top {num(int(k))}", "precision", "lift over random",
@@ -133,7 +143,7 @@ def context() -> dict:
     vrows = []
     for name in ORDER:
         r = val["validation"][name]
-        vrows.append([name, f"{r['roc_auc']:.3f}", f"{r['average_precision']:.3f}",
+        vrows.append([name, f"{r['roc_auc']:.3f}", f"{r['average_precision']:.4f}",
                       f"{r['budgets'][k]['hits']} of {r['positives']}"])
     c["validation_table"] = table(["detector", "ROC AUC", "average precision",
                                    f"found in top {num(int(k))}"], vrows)
@@ -141,7 +151,7 @@ def context() -> dict:
     for kk, bb in det["budgets"].items():
         ci = det["recall_ci"][kk]
         brows.append([num(int(kk)), str(bb["hits"]), pct(bb["recall"], 0),
-                      f"{pct(ci[0], 0)}–{pct(ci[1], 0)}", pct(bb["precision"]), f"{bb['lift']:,.0f}×"])
+                      f"{pct(ci[0], 0)}–{pct(ci[1], 0)}", pct(bb["precision"], 2), f"{bb['lift']:,.0f}×"])
     c["budget_table"] = table(["providers reviewed", "later excluded", "recall", "95% CI",
                                "precision", "lift"], brows)
     spec = ", ".join(f"{name.lower()} ({n})" for name, n in h["hits_by_specialty"][:5])
