@@ -35,7 +35,7 @@ def main() -> None:
     scores = scorer.all_scores(test)
     ref["chosen"] = np.sort(scores[scorer.chosen])
     np.savez_compressed(config.MODELS / "reference.npz", **ref)
-    budgets = config.REVIEW_BUDGETS
+    budgets = config.REVIEW_BUDGETS + tuple(round(f * len(test)) for f in config.REVIEW_SHARES)
     k = config.HEADLINE_BUDGET
 
     results = {"year": config.TEST_YEAR, "chosen": scorer.chosen, "detectors": {}}
@@ -49,16 +49,18 @@ def main() -> None:
     chosen = scores[scorer.chosen]
     idx = evaluation.top_k(chosen, k)
     flagged = test.iloc[idx]
-    hits = flagged[flagged["label"] == 1]
     threshold = float(np.sort(chosen)[::-1][k - 1])
+    k5 = round(0.05 * len(test))
+    idx5 = evaluation.top_k(chosen, k5)
+    hits = test.iloc[idx5][test.iloc[idx5]["label"] == 1]
 
     # How long before the exclusion the provider would have been on the list.
     end_of_year = np.datetime64(f"{config.TEST_YEAR}-12-31")
     months = ((hits["exclusion_date"].to_numpy().astype("datetime64[D]") - end_of_year)
               .astype(int) / 30.44)
     results["headline"] = {
-        "budget": k, "threshold": threshold,
-        "hits": len(hits), "positives": int(y.sum()), "providers": len(test),
+        "budget": k, "threshold": threshold, "described_list": k5,
+        "hits_described_list": len(hits), "positives": int(y.sum()), "providers": len(test),
         "share_reviewed": k / len(test),
         "months_from_end_of_year_to_exclusion": {
             "median": float(np.median(months)) if len(months) else None,
@@ -66,7 +68,7 @@ def main() -> None:
             "max": float(months.max()) if len(months) else None},
         "hits_by_specialty": Counter(hits["provider_type"]).most_common(),
         "hits_by_exclusion_type": Counter(hits["exclusion_type"]).most_common(),
-        "payment_of_hits": float(value[idx][y[idx] == 1].sum()),
+        "payment_of_hits_described_list": float(value[idx5][y[idx5] == 1].sum()),
         "payment_of_all_positives": float(value[y == 1].sum()),
     }
 

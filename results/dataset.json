@@ -16,7 +16,7 @@
       "positives": 71,
       "dropped_already_excluded": 18,
       "dropped_non_fraud_exclusion": 129,
-      "part_b_payment": 90875409213.06549,
+      "part_b_payment": 90875409213.0654,
       "with_part_d": 658250
     },
     "2015": {
@@ -25,7 +25,7 @@
       "positives": 90,
       "dropped_already_excluded": 16,
       "dropped_non_fraud_exclusion": 142,
-      "part_b_payment": 93644595176.42874,
+      "part_b_payment": 93644595176.4285,
       "with_part_d": 679600
     },
     "2016": {
@@ -34,7 +34,7 @@
       "positives": 75,
       "dropped_already_excluded": 24,
       "dropped_non_fraud_exclusion": 122,
-      "part_b_payment": 95824428988.6989,
+      "part_b_payment": 95824428988.69862,
       "with_part_d": 702657
     },
     "2017": {
@@ -43,7 +43,7 @@
       "positives": 88,
       "dropped_already_excluded": 21,
       "dropped_non_fraud_exclusion": 66,
-      "part_b_payment": 97979523256.81073,
+      "part_b_payment": 97979523256.81091,
       "with_part_d": 725899
     },
     "2019": {
@@ -52,7 +52,7 @@
       "positives": 51,
       "dropped_already_excluded": 8,
       "dropped_non_fraud_exclusion": 53,
-      "part_b_payment": 105845291422.76877,
+      "part_b_payment": 105845291422.7716,
       "with_part_d": 769003
     },
     "2022": {
@@ -61,7 +61,7 @@
       "positives": 84,
       "dropped_already_excluded": 9,
       "dropped_non_fraud_exclusion": 83,
-      "part_b_payment": 106979419226.79251,
+      "part_b_payment": 106979419226.79294,
       "with_part_d": 813626
     }
   },

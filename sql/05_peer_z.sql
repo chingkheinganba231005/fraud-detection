@@ -1,6 +1,8 @@
 -- Robust z-score of each metric against the provider's peer group:
 --   (value - peer median) / peer IQR, clipped to [-50, 50].
--- Peer groups with fewer than {min_peers} providers, or no spread, fall back to all providers.
+-- The scale is the peer IQR, or the peer standard deviation when the IQR is zero. Peer
+-- groups with fewer than {min_peers} providers, or no spread at all, fall back to all providers.
+-- A missing value or a missing scale gives a missing z-score, never the clip value.
 
 CREATE OR REPLACE TABLE peer_z AS
 SELECT f.year, f.npi, {z_expressions}

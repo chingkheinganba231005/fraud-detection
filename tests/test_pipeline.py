@@ -110,3 +110,26 @@ def test_small_peer_groups_fall_back_to_all_providers():
     overall = stats[(stats.provider_type == "__all__")].iloc[0]
     expected = (60.0 - overall["med__payment_per_bene"]) / overall["iqr__payment_per_bene"]
     assert f["z_payment_per_bene"] == pytest.approx(expected)
+
+
+def test_missing_metrics_stay_missing_after_clipping():
+    """DuckDB's least() and greatest() ignore NULLs; a missing ratio must not become 50."""
+    b, d = _rows(60)
+    stats = _peer_stats(b, d)
+    f = db.features_from_raw(b.iloc[[0]], d, stats).iloc[0]
+    for c in ("z_d_opioid_share", "z_d_cost_per_claim", "z_log_d_claims"):
+        assert pd.isna(f[c])
+
+
+def test_zero_iqr_falls_back_to_standard_deviation():
+    b, d = _rows(60)
+    b.loc[b.npi <= 10, "b_drug_payment"] = 100.0  # most peers bill no drugs, so the IQR is 0
+    stats = _peer_stats(b, d)
+    probe = b.iloc[[20]].copy()
+    probe["b_drug_payment"] = 500.0
+    f = db.features_from_raw(probe, d, stats).iloc[0]
+    row = stats[stats.provider_type == "Internal Medicine"].iloc[0]
+    assert row["iqr__drug_payment_share"] == 0
+    expected = (0.5 - row["med__drug_payment_share"]) / row["sd__drug_payment_share"]
+    assert f["z_drug_payment_share"] == pytest.approx(expected)
+    assert -50 < f["z_drug_payment_share"] < 50 or expected >= 50

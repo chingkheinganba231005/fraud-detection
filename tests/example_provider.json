@@ -1,0 +1,34 @@
+{
+  "part_b": {
+    "provider_type": "Internal Medicine",
+    "entity": "I",
+    "state": "NY",
+    "ruca": 1,
+    "participating": "Y",
+    "b_codes": 25,
+    "b_benes": 400,
+    "b_services": 1500,
+    "b_charges": 450000,
+    "b_allowed": 150000,
+    "b_payment": 115000,
+    "b_drug_payment": 0,
+    "bene_age": 74,
+    "bene_lt65": 40,
+    "bene_gt84": 60,
+    "bene_female": 230,
+    "bene_dual": 80,
+    "risk_score": 1.4
+  },
+  "part_d": {
+    "d_claims": 3000,
+    "d_cost": 150000,
+    "d_days": 90000,
+    "d_benes": 350,
+    "d_brand_claims": 600,
+    "d_opioid_claims": 150,
+    "d_opioid_la_claims": 10,
+    "d_antibiotic_claims": 80,
+    "d_antipsychotic_claims": 0,
+    "d_lis_claims": 700
+  }
+}

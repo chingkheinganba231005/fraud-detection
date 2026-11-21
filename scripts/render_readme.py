@@ -86,7 +86,39 @@ def context() -> dict:
         "org_pop": pct(test["mix"]["organisation_share_population"], 1),
         "org_list": pct(test["mix"]["organisation_share_list"], 1),
         "stress_n": num(st["providers"]),
+        "auc_peer": f"{test['detectors']['peer rule']['roc_auc']:.2f}",
+        "auc_knn": f"{test['detectors']['nearest known cases']['roc_auc']:.2f}",
+        "reason_specialty": num(dict(test["top_reason_on_list"]).get("provider_type", 0)),
     }
+    k5 = str(h["described_list"])
+    b5 = det["budgets"][k5]
+    c.update({
+        "hits5": str(b5["hits"]),
+        "recall5": pct(b5["recall"], 0),
+        "recall5_ci": f"{pct(det['recall_ci'][k5][0], 0)}–{pct(det['recall_ci'][k5][1], 0)}",
+        "lift5": f"{b5['lift']:.1f}",
+        "value5": money_m(b5["value_found"]),
+        "value5_random": money_m(b5["value_found_random"]),
+    })
+    r = st["results"]
+
+    def det_rate(scheme, f, d, lst="top 1%"):
+        return r[scheme][f][lst][d]["detected"]
+
+    c["stress_summary"] = (
+        f"At five times normal billing, LightGBM puts {pct(det_rate('phantom services', '5.0', 'lightgbm'), 0)} "
+        f"of the phantom-service copies and {pct(det_rate('upcoding', '5.0', 'lightgbm'), 0)} of the upcoding "
+        f"copies on the list, while the peer rule catches {pct(det_rate('phantom services', '5.0', 'peer rule'), 0)} "
+        f"and {pct(det_rate('upcoding', '5.0', 'peer rule'), 0)}. A model trained only on who was caught learns "
+        f"what past cases looked like, and it can miss a blatant scheme that a simple peer comparison flags at "
+        f"once. In practice the two should run as separate channels feeding one review queue. Averaging "
+        f"their ranks into a single score is not enough, because that gives up most of the peer rule's "
+        f"sensitivity and some of the model's ranking (ROC AUC {test['detectors']['lightgbm + peer rule']['roc_auc']:.2f} "
+        f"on the test year). Neither detector notices a patient mill, which keeps every ratio normal "
+        f"({pct(det_rate('patient mill', '5.0', 'lightgbm'), 0)} and "
+        f"{pct(det_rate('patient mill', '5.0', 'peer rule'), 0)} at five times the volume). Catching that "
+        f"needs data these files do not have, such as patients' travel distance or shared patients between "
+        f"providers.")
     rows = []
     for name in ORDER:
         r = test["detectors"][name]
@@ -118,7 +150,7 @@ def context() -> dict:
     dets = ("lightgbm", "peer rule", "isolation forest", "lightgbm + peer rule")
     for scheme, by_f in st["results"].items():
         for f in ("1.0", "2.0", "5.0"):
-            srows.append([scheme, f"×{float(f):g}"] + [pct(by_f[f][d]["detected"], 0) for d in dets])
+            srows.append([scheme, f"×{float(f):g}"] + [pct(by_f[f]["top 1%"][d]["detected"], 1) for d in dets])
     c["stress_table"] = table(["scheme", "strength"] + list(dets), srows)
     return c
 

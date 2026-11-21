@@ -58,19 +58,24 @@ def bootstrap(y: np.ndarray, score: np.ndarray, budgets, n_boot: int, seed: int)
     neg = np.sort(score[y == 0])
     # Negatives scoring above each positive (ties count half) and the review thresholds.
     above = len(neg) - (np.searchsorted(neg, pos, "left") + np.searchsorted(neg, pos, "right")) / 2
-    order_all = np.sort(score)[::-1]
-    thresholds = {k: order_all[k - 1] for k in budgets}
+    # Whether each positive is on the list, with ties broken exactly as in at_budget.
+    pos_idx = np.flatnonzero(y == 1)
+    pos_by_score = pos_idx[np.argsort(score[pos_idx], kind="stable")]
+    on_list = {}
+    for k in budgets:
+        member = np.zeros(len(y), dtype=bool)
+        member[top_k(score, k)] = True
+        on_list[k] = member[pos_by_score]
     auc, ap, rec = [], [], {k: [] for k in budgets}
     n_pos = len(pos)
     for _ in range(n_boot):
         i = rng.integers(0, n_pos, n_pos)
         p, a = pos[i], above[i]
         auc.append(1 - a.mean() / len(neg))
-        ps = np.sort(p)[::-1]
         a_sorted = a[np.argsort(-p, kind="stable")]
         ap.append(np.mean(np.arange(1, n_pos + 1) / (np.arange(1, n_pos + 1) + a_sorted)))
         for k in budgets:
-            rec[k].append(np.mean(ps >= thresholds[k]))
+            rec[k].append(on_list[k][i].mean())
 
     def ci(v):
         return [float(np.percentile(v, 2.5)), float(np.percentile(v, 97.5))]

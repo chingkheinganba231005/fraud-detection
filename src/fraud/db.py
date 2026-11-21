@@ -9,12 +9,24 @@ def sql_text(name: str) -> str:
     """Read sql/<name> and fill the placeholders shared by the queries."""
     aggregates = ",\n    ".join(
         f"count({m}) AS n__{m}, median({m}) AS med__{m}, "
-        f"quantile_cont({m}, 0.75) - quantile_cont({m}, 0.25) AS iqr__{m}"
+        f"quantile_cont({m}, 0.75) - quantile_cont({m}, 0.25) AS iqr__{m}, "
+        f"stddev_samp({m}) AS sd__{m}"
         for m in config.PEER_METRICS)
+
+    def scale(t, m):
+        # The IQR, or the standard deviation when more than half the group shares one value
+        # (for example no office-administered drugs at all) and the IQR is zero.
+        return f"coalesce(nullif({t}.iqr__{m}, 0), nullif({t}.sd__{m}, 0))"
+
+    def z(m):
+        return (f"CASE WHEN p.n__{m} >= {config.MIN_PEERS} AND {scale('p', m)} IS NOT NULL "
+                f"THEN (f.{m} - p.med__{m}) / {scale('p', m)} "
+                f"ELSE (f.{m} - a.med__{m}) / {scale('a', m)} END")
+
+    # greatest() and least() skip NULLs in DuckDB, so a missing z-score has to be kept
+    # missing explicitly or it would come out as the clip value.
     z_expressions = ",\n    ".join(
-        f"greatest(-50, least(50, CASE WHEN p.n__{m} >= {config.MIN_PEERS} AND p.iqr__{m} > 0 "
-        f"THEN (f.{m} - p.med__{m}) / p.iqr__{m} "
-        f"ELSE (f.{m} - a.med__{m}) / nullif(a.iqr__{m}, 0) END)) AS z_{m}"
+        f"CASE WHEN ({z(m)}) IS NULL THEN NULL ELSE greatest(-50, least(50, {z(m)})) END AS z_{m}"
         for m in config.PEER_METRICS)
     fraud = ", ".join(f"'{t}'" for t in config.FRAUD_EXCLUSION_TYPES)
     text = (config.SQL / name).read_text()

@@ -71,6 +71,10 @@ LEIE_PATH = RAW / "leie_updated.csv"
 # Review budgets: how many providers an investigation team could look at in a year.
 REVIEW_BUDGETS = (100, 500, 1000, 5000)
 HEADLINE_BUDGET = 1000
+# Review lists as a share of all providers. Added after the first test run showed that the
+# fixed lists above are too short to say much at a 1-in-15,000 positive rate; the model and
+# its selection were not changed.
+REVIEW_SHARES = (0.01, 0.05, 0.10, 0.20)
 N_BOOTSTRAP = 2000
 
 # Metrics compared against the provider's peers (same provider type, same year).
