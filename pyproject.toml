@@ -1,0 +1,12 @@
+[project]
+name = "fraud"
+version = "0.1.0"
+description = "Medicare provider fraud detection from public CMS claims and OIG exclusions"
+requires-python = ">=3.11"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "tests"]

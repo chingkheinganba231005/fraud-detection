@@ -1,0 +1,80 @@
+{
+  "leie_updated.csv": {
+    "url": "https://oig.hhs.gov/exclusions/downloadables/UPDATED.csv",
+    "bytes": 10820754,
+    "sha256": "e3c50a291e7ff5e333959fb44173552caaf1c3e8f3d5e1c95b4a79f05346f1eb",
+    "downloaded": "2026-11-21"
+  },
+  "partb_2014.csv": {
+    "url": "https://data.cms.gov/sites/default/files/2025-11/da4b3b2b-1ee2-4e25-b2fe-012b880afd37/MUP_PHY_R25_P05_V20_D14_Prov.csv",
+    "bytes": 336174411,
+    "sha256": "85f9e377795dd348350a8fee61cbf7ba608ca4276579e0566cdd239cb5fa7994",
+    "downloaded": "2026-11-21"
+  },
+  "partd_2014.csv": {
+    "url": "https://data.cms.gov/sites/default/files/2026-08/e11a5415-1967-4207-8ae3-329cfe3fedef/mup_dpr_ry21_p04_v20_dy14_npi.csv",
+    "bytes": 579596506,
+    "sha256": "2b6fb83ec5b3985d36f0eb3356ac5372f2d5c56b1869a448f05af167d92c443c",
+    "downloaded": "2026-11-21"
+  },
+  "partb_2015.csv": {
+    "url": "https://data.cms.gov/sites/default/files/2025-11/efb7e2f9-b903-4f54-b57f-742f436c316f/MUP_PHY_R25_P05_V20_D15_Prov.csv",
+    "bytes": 347504913,
+    "sha256": "cb6bda1d7b00cd476264b399e78bce15c19143b11c45a41904c8030c9bbf4214",
+    "downloaded": "2026-11-21"
+  },
+  "partd_2015.csv": {
+    "url": "https://data.cms.gov/sites/default/files/2026-08/a846e593-06fb-4ed5-9b2f-b5a31acfef82/mup_dpr_ry21_p04_v20_dy15_npi.csv",
+    "bytes": 597119098,
+    "sha256": "74397dd9ff59f914e1faaf7997a2b566347cd0e457439fda03f2ce53895927df",
+    "downloaded": "2026-11-21"
+  },
+  "partb_2016.csv": {
+    "url": "https://data.cms.gov/sites/default/files/2025-11/e4cd28e1-2d05-4f33-b232-f32b5bebc153/MUP_PHY_R25_P05_V20_D16_Prov.csv",
+    "bytes": 362426740,
+    "sha256": "6ab55e3255d1ea101107ac32bcd40b9db5bfb94246b379c0665bf157af08cdd2",
+    "downloaded": "2026-11-21"
+  },
+  "partd_2016.csv": {
+    "url": "https://data.cms.gov/sites/default/files/2026-08/e8255bdf-5e85-425c-9e6c-1cc460ccce51/mup_dpr_ry21_p04_v20_dy16_npi.csv",
+    "bytes": 615073458,
+    "sha256": "848aafa891a09d6fbc472aa266841de76a523215385f46c2c85aec9e4dde6d2f",
+    "downloaded": "2026-11-21"
+  },
+  "partb_2017.csv": {
+    "url": "https://data.cms.gov/sites/default/files/2025-11/b7e195ce-710d-4584-8293-787ffc38b017/MUP_PHY_R25_P07_V20_D17_Prov.csv",
+    "bytes": 433626921,
+    "sha256": "38a3227ea26f0297d4a5441e90805a3d35330bd5a26c3561acd0c36d14ef9baa",
+    "downloaded": "2026-11-21"
+  },
+  "partd_2017.csv": {
+    "url": "https://data.cms.gov/sites/default/files/2026-08/8a65e4c8-3c6a-48f2-99ba-422987d953af/mup_dpr_ry21_p04_v20_dy17_npi.csv",
+    "bytes": 631867428,
+    "sha256": "90851551a3726ae6fa95ab4589c965cbb564a0323a9a2410a52a6a434a899451",
+    "downloaded": "2026-11-21"
+  },
+  "partb_2019.csv": {
+    "url": "https://data.cms.gov/sites/default/files/2025-11/ac110c46-3429-4f3c-9348-56f0a5312cb8/MUP_PHY_R25_P07_V20_D19_Prov.csv",
+    "bytes": 459418436,
+    "sha256": "bd789342af70524356be846953a5c1943a041e423760c4c481f6dd64178f79b4",
+    "downloaded": "2026-11-21"
+  },
+  "partd_2019.csv": {
+    "url": "https://data.cms.gov/sites/default/files/2026-08/d4a0a871-5e6a-4180-8d89-82b56ff08175/mup_dpr_ry21_p04_v20_dy19_npi.csv",
+    "bytes": 671751347,
+    "sha256": "93ab118f8c486471eef978b9ff72a23c4ac89eafcf66a57383142833eee35405",
+    "downloaded": "2026-11-21"
+  },
+  "partb_2022.csv": {
+    "url": "https://data.cms.gov/sites/default/files/2025-11/adcd20c5-4534-43cd-8dfa-881ebe7bacfd/MUP_PHY_R25_P07_V20_D22_Prov.csv",
+    "bytes": 484670744,
+    "sha256": "5c34a49258ea9c09933592667c802c24669e22b077b761a20b65dfa47bc62914",
+    "downloaded": "2026-11-21"
+  },
+  "partd_2022.csv": {
+    "url": "https://data.cms.gov/sites/default/files/2026-08/0cdbfc0d-257d-4eb0-bcc8-71e5462ec320/mup_dpr_ry24_p04_v20_dy22_npi.csv",
+    "bytes": 737566989,
+    "sha256": "e2d46a8edcd402216aa7542d1e2ef949381a1a453d8afe52e23589185209c336",
+    "downloaded": "2026-11-21"
+  }
+}

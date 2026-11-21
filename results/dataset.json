@@ -1,0 +1,78 @@
+{
+  "label_window_years": 2,
+  "fraud_exclusion_types": {
+    "1128a1": "conviction of a program-related crime",
+    "1128a3": "felony conviction relating to health care fraud",
+    "1128b1": "misdemeanor conviction relating to health care fraud",
+    "1128b2": "conviction relating to obstruction of an investigation",
+    "1128b6": "claims for excessive charges or unnecessary services",
+    "1128b7": "fraud, kickbacks and other prohibited activities",
+    "1128Aa": "civil monetary penalty"
+  },
+  "years": {
+    "2014": {
+      "providers": 986657,
+      "kept": 986510,
+      "positives": 71,
+      "dropped_already_excluded": 18,
+      "dropped_non_fraud_exclusion": 129,
+      "part_b_payment": 90875409213.06549,
+      "with_part_d": 658250
+    },
+    "2015": {
+      "providers": 1019377,
+      "kept": 1019219,
+      "positives": 90,
+      "dropped_already_excluded": 16,
+      "dropped_non_fraud_exclusion": 142,
+      "part_b_payment": 93644595176.42874,
+      "with_part_d": 679600
+    },
+    "2016": {
+      "providers": 1053958,
+      "kept": 1053812,
+      "positives": 75,
+      "dropped_already_excluded": 24,
+      "dropped_non_fraud_exclusion": 122,
+      "part_b_payment": 95824428988.6989,
+      "with_part_d": 702657
+    },
+    "2017": {
+      "providers": 1088687,
+      "kept": 1088600,
+      "positives": 88,
+      "dropped_already_excluded": 21,
+      "dropped_non_fraud_exclusion": 66,
+      "part_b_payment": 97979523256.81073,
+      "with_part_d": 725899
+    },
+    "2019": {
+      "providers": 1155870,
+      "kept": 1155809,
+      "positives": 51,
+      "dropped_already_excluded": 8,
+      "dropped_non_fraud_exclusion": 53,
+      "part_b_payment": 105845291422.76877,
+      "with_part_d": 769003
+    },
+    "2022": {
+      "providers": 1230293,
+      "kept": 1230201,
+      "positives": 84,
+      "dropped_already_excluded": 9,
+      "dropped_non_fraud_exclusion": 83,
+      "part_b_payment": 106979419226.79251,
+      "with_part_d": 813626
+    }
+  },
+  "positives_by_exclusion_type": {
+    "1128a1": 348,
+    "1128a3": 53,
+    "1128b7": 46,
+    "1128b1": 7,
+    "1128b6": 2,
+    "1128Aa": 2,
+    "1128b2": 1
+  },
+  "distinct_positive_providers_train": 236
+}
